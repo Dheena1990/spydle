@@ -109,7 +109,7 @@ export default function GameScreen({
   if (!game) return null;
 
   return (
-    <div style={{ position: "relative", zIndex: 1, maxWidth: "780px", margin: "0 auto", padding: "16px 12px 120px" }}>
+    <div style={{ position: "relative", zIndex: 1, maxWidth: "780px", margin: "0 auto", padding: "12px 8px 100px" }}>
 
       {game.gameOver && game.winner && <Confetti color={game.winner} />}
 

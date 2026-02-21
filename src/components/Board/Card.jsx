@@ -35,8 +35,8 @@ export default function Card({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "10px 6px",
-    minHeight: "68px",
+    padding: "clamp(5px, 1.5vw, 10px) clamp(2px, 0.8vw, 6px)",
+    minHeight: "clamp(52px, 10vw, 68px)",
     userSelect: "none",
     WebkitTapHighlightColor: "transparent",
     animation: isAnimating ? "cardReveal 0.5s ease-out" : `slideUp 0.4s ease-out ${card.id * 0.02}s both`,
@@ -110,12 +110,13 @@ export default function Card({
 
       <span
         style={{
-          fontSize: "clamp(11px, 2.8vw, 15px)",
+          fontSize: "clamp(8px, 2.2vw, 14px)",
           fontWeight: 800,
           textAlign: "center",
-          lineHeight: 1.2,
-          letterSpacing: "0.6px",
+          lineHeight: 1.15,
+          letterSpacing: "0.3px",
           wordBreak: "break-word",
+          hyphens: "auto",
           textShadow: showColors ? `0 1px 4px rgba(0,0,0,0.5)` : "none",
         }}
       >

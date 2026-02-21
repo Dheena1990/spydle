@@ -14,7 +14,7 @@ export default function Board({
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(5, 1fr)",
-        gap: "8px",
+        gap: "clamp(4px, 1.2vw, 8px)",
         marginBottom: "16px",
       }}
     >
