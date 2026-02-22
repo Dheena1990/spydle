@@ -24,6 +24,7 @@ export default function GameScreen({
   timerDuration,
   role = "local",
   isMultiplayer = false,
+  roomCode = null,
   mpConnected = false,
   mpError = null,
   onGiveClue,
@@ -42,6 +43,7 @@ export default function GameScreen({
   const [revealAnimation,setRevealAnimation]= useState(null);
   const [clueWord,       setClueWord]       = useState("");
   const [clueNumber,     setClueNumber]     = useState("");
+  const [codeCopied,     setCodeCopied]     = useState(false);
 
   const { aiLoading, generateClue } = useAiSpymaster();
 
@@ -196,6 +198,26 @@ export default function GameScreen({
             }}>
               {badge.label}
             </span>
+          )}
+          {/* Room code chip — tap to copy */}
+          {roomCode && (
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(roomCode).catch(() => {});
+                setCodeCopied(true);
+                setTimeout(() => setCodeCopied(false), 2000);
+              }}
+              style={{
+                fontSize: "11px", fontWeight: 800, letterSpacing: "2px",
+                color: codeCopied ? "#86efac" : "#a78bfa",
+                background: codeCopied ? "rgba(34,197,94,0.1)" : "rgba(167,139,250,0.1)",
+                padding: "2px 8px", borderRadius: "6px",
+                border: `1px solid ${codeCopied ? "rgba(34,197,94,0.3)" : "rgba(167,139,250,0.3)"}`,
+                cursor: "pointer", fontFamily: "monospace",
+              }}
+            >
+              {codeCopied ? "✅ Copied" : `🔑 ${roomCode}`}
+            </button>
           )}
         </div>
 

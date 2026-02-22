@@ -40,9 +40,9 @@ export default function App() {
     currentClue:      mpClue,
     guessesLeft:      mpGuesses,
     role:             mpRole,
+    roomCode:         mpRoomCode,
     connected:        mpConnected,
     error:            mpError,
-    createAndJoin,
     joinExistingRoom,
     giveClue:         mpGiveClue,
     revealCard:       mpRevealCard,
@@ -77,14 +77,10 @@ export default function App() {
     }
   }
 
-  // ── Handlers: multiplayer ─────────────────────────────────────────────────
-  async function handleEnterGame(roomCode, role, pack, meta, isHost) {
+  // ── Handlers: multiplayer (room already created in Firebase by LobbyScreen) ─
+  function handleEnterGame(roomCode, role) {
     setGameMode("multiplayer");
-    if (isHost) {
-      await createAndJoin(roomCode, pack, { ...meta, role });
-    } else {
-      joinExistingRoom(roomCode, role);
-    }
+    joinExistingRoom(roomCode, role);
     setScreen("game");
   }
 
@@ -133,6 +129,7 @@ export default function App() {
           timerEnabled={timerEnabled}
           timerDuration={timerDuration}
           role={activeRole}
+          roomCode={isMultiplayer ? mpRoomCode : null}
           isMultiplayer={isMultiplayer}
           mpConnected={mpConnected}
           mpError={mpError}

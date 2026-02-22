@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { generateRoomCode, roomExists } from "../../firebase/roomService";
+import { generateRoomCode, roomExists, createRoom } from "../../firebase/roomService";
+import { generateBoard } from "../../utils/gameLogic";
 import WORD_PACKS from "../../constants/wordPacks";
 
 const ROLES = [
@@ -9,27 +10,45 @@ const ROLES = [
 ];
 
 export default function LobbyScreen({ onEnterGame, onBack, sound, timerEnabled, timerDuration }) {
-  const [tab,       setTab]       = useState("create"); // "create" | "join"
-  const [wordPack,  setWordPack]  = useState("classic");
-  const [role,      setRole]      = useState("red_spymaster");
-  const [joinCode,  setJoinCode]  = useState("");
-  const [joinRole,  setJoinRole]  = useState("operative");
-  const [loading,   setLoading]   = useState(false);
-  const [errMsg,    setErrMsg]    = useState("");
+  const [tab,         setTab]         = useState("create");
+  const [wordPack,    setWordPack]    = useState("classic");
+  const [role,        setRole]        = useState("red_spymaster");
+  const [joinCode,    setJoinCode]    = useState("");
+  const [joinRole,    setJoinRole]    = useState("operative");
+  const [loading,     setLoading]     = useState(false);
+  const [errMsg,      setErrMsg]      = useState("");
+  const [createdCode, setCreatedCode] = useState(null); // null = not yet created
+  const [copied,      setCopied]      = useState(false);
 
-  // ── Create Room ───────────────────────────────────────────────────────────
+  // ── Create Room — write to Firebase first, then show code ─────────────────
   async function handleCreate() {
     setLoading(true);
     setErrMsg("");
     try {
       const code = generateRoomCode();
-      const meta = { wordPack, timerEnabled, timerDuration, hostId: code, createdAt: Date.now() };
+      const board = generateBoard(wordPack);
+      const meta  = { wordPack, timerEnabled, timerDuration, hostId: code, createdAt: Date.now() };
+      await createRoom(code, board, meta);   // ← waits for Firebase confirmation
       sound("click");
-      onEnterGame(code, role, wordPack, meta, true /* isHost */);
+      setCreatedCode(code);                  // ← show code screen
     } catch (e) {
-      setErrMsg("Could not create room. Check your Firebase config.");
+      setErrMsg("Could not create room. Is Firebase configured? (" + e.message + ")");
     }
     setLoading(false);
+  }
+
+  // ── Copy code to clipboard ────────────────────────────────────────────────
+  function handleCopy() {
+    navigator.clipboard.writeText(createdCode).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    sound("click");
+  }
+
+  // ── Enter the game (room already exists in Firebase) ──────────────────────
+  function handleEnterGame() {
+    sound("click");
+    onEnterGame(createdCode, role);
   }
 
   // ── Join Room ─────────────────────────────────────────────────────────────
@@ -49,13 +68,113 @@ export default function LobbyScreen({ onEnterGame, onBack, sound, timerEnabled, 
         return;
       }
       sound("click");
-      onEnterGame(code, joinRole, null, null, false /* isHost */);
+      onEnterGame(code, joinRole);
     } catch (e) {
       setErrMsg("Could not join room. Check your internet connection.");
     }
     setLoading(false);
   }
 
+  // ── ROOM CREATED SCREEN ───────────────────────────────────────────────────
+  if (createdCode) {
+    return (
+      <div style={{
+        position: "relative", zIndex: 1,
+        maxWidth: "520px", margin: "0 auto",
+        padding: "40px 20px", minHeight: "100vh",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      }}>
+        <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎉</div>
+        <h2 style={{
+          fontFamily: "'Playfair Display', serif", fontSize: "24px", fontWeight: 800,
+          color: "#e2e8f0", margin: "0 0 8px", textAlign: "center",
+        }}>
+          Room Created!
+        </h2>
+        <p style={{ color: "#64748b", fontSize: "14px", marginBottom: "32px", textAlign: "center" }}>
+          Share this code with your friends
+        </p>
+
+        {/* Big code display */}
+        <div style={{
+          background: "rgba(167,139,250,0.1)", border: "2px solid rgba(167,139,250,0.4)",
+          borderRadius: "20px", padding: "24px 48px", marginBottom: "16px", textAlign: "center",
+        }}>
+          <div style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "3px", color: "#a78bfa", marginBottom: "8px" }}>
+            ROOM CODE
+          </div>
+          <div style={{
+            fontSize: "56px", fontWeight: 900, letterSpacing: "12px",
+            fontFamily: "'JetBrains Mono', monospace",
+            background: "linear-gradient(135deg, #c4b5fd, #a78bfa)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+          }}>
+            {createdCode}
+          </div>
+        </div>
+
+        {/* Copy button */}
+        <button
+          onClick={handleCopy}
+          style={{
+            padding: "10px 24px", borderRadius: "10px", marginBottom: "32px",
+            border: "1px solid rgba(167,139,250,0.3)", background: copied ? "rgba(34,197,94,0.12)" : "rgba(167,139,250,0.08)",
+            color: copied ? "#86efac" : "#c4b5fd", fontSize: "14px", fontWeight: 600,
+            cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s",
+          }}
+        >
+          {copied ? "✅ Copied!" : "📋 Copy Code"}
+        </button>
+
+        {/* Role reminder */}
+        <div style={{
+          padding: "12px 20px", borderRadius: "12px", marginBottom: "28px",
+          background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
+          color: "#94a3b8", fontSize: "14px", textAlign: "center",
+        }}>
+          Your role: <strong style={{ color: "#e2e8f0" }}>
+            {ROLES.find(r => r.id === role)?.label}
+          </strong>
+        </div>
+
+        {/* Instructions */}
+        <div style={{
+          padding: "14px 16px", borderRadius: "12px", marginBottom: "28px",
+          background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+          fontSize: "13px", color: "#64748b", lineHeight: 1.7, width: "100%",
+        }}>
+          <div>🔴 Red Spymaster → open app → Join Room → enter <strong style={{ color: "#e2e8f0", fontFamily: "monospace" }}>{createdCode}</strong></div>
+          <div>🔵 Blue Spymaster → open app → Join Room → enter <strong style={{ color: "#e2e8f0", fontFamily: "monospace" }}>{createdCode}</strong></div>
+          <div>📺 TV/Operative → open app → Join Room → enter <strong style={{ color: "#e2e8f0", fontFamily: "monospace" }}>{createdCode}</strong></div>
+        </div>
+
+        <button
+          onClick={handleEnterGame}
+          style={{
+            width: "100%", padding: "18px", borderRadius: "14px", border: "none",
+            cursor: "pointer", background: "linear-gradient(135deg, #ef4444, #8b5cf6, #3b82f6)",
+            color: "white", fontSize: "18px", fontWeight: 800,
+            fontFamily: "inherit", letterSpacing: "1px",
+            boxShadow: "0 8px 32px rgba(139,92,246,0.3)",
+          }}
+        >
+          Enter Game →
+        </button>
+
+        <button
+          onClick={() => setCreatedCode(null)}
+          style={{
+            marginTop: "12px", background: "none", border: "none",
+            color: "#475569", cursor: "pointer", fontSize: "13px", fontFamily: "inherit",
+          }}
+        >
+          ← Back to lobby
+        </button>
+      </div>
+    );
+  }
+
+  // ── MAIN LOBBY SCREEN ─────────────────────────────────────────────────────
   return (
     <div style={{
       position: "relative", zIndex: 1,
@@ -110,7 +229,6 @@ export default function LobbyScreen({ onEnterGame, onBack, sound, timerEnabled, 
       {/* ── CREATE TAB ────────────────────────────────────────────────────── */}
       {tab === "create" && (
         <>
-          {/* Word Pack */}
           <label style={labelStyle}>WORD PACK</label>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "8px", marginBottom: "20px" }}>
             {Object.entries(WORD_PACKS)
@@ -134,7 +252,6 @@ export default function LobbyScreen({ onEnterGame, onBack, sound, timerEnabled, 
               ))}
           </div>
 
-          {/* Your Role */}
           <label style={labelStyle}>YOUR ROLE</label>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "28px" }}>
             {ROLES.map((r) => (
@@ -248,7 +365,6 @@ export default function LobbyScreen({ onEnterGame, onBack, sound, timerEnabled, 
   );
 }
 
-// ── Shared styles ─────────────────────────────────────────────────────────
 const labelStyle = {
   fontSize: "12px", fontWeight: 700, letterSpacing: "3px",
   textTransform: "uppercase", color: "#64748b",
@@ -273,7 +389,7 @@ function ActionButton({ onClick, loading, children }) {
         opacity: loading ? 0.7 : 1,
       }}
     >
-      {loading ? "⏳ Please wait..." : children}
+      {loading ? "⏳ Creating room..." : children}
     </button>
   );
 }
