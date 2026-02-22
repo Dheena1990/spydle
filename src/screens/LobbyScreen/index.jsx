@@ -19,9 +19,15 @@ export default function LobbyScreen({ onEnterGame, onBack, sound, timerEnabled, 
   const [errMsg,      setErrMsg]      = useState("");
   const [createdCode, setCreatedCode] = useState(null); // null = not yet created
   const [copied,      setCopied]      = useState(false);
+  const [lastCreateTime, setLastCreateTime] = useState(0);
 
   // ── Create Room — write to Firebase first, then show code ─────────────────
   async function handleCreate() {
+    const now = Date.now();
+    if (now - lastCreateTime < 3000) {
+      setErrMsg("Please wait a few seconds before creating another room.");
+      return;
+    }
     setLoading(true);
     setErrMsg("");
     try {
@@ -29,6 +35,7 @@ export default function LobbyScreen({ onEnterGame, onBack, sound, timerEnabled, 
       const board = generateBoard(wordPack);
       const meta  = { wordPack, timerEnabled, timerDuration, hostId: code, createdAt: Date.now() };
       await createRoom(code, board, meta);   // ← waits for Firebase confirmation
+      setLastCreateTime(Date.now());
       sound("click");
       setCreatedCode(code);                  // ← show code screen
     } catch (e) {
@@ -53,9 +60,9 @@ export default function LobbyScreen({ onEnterGame, onBack, sound, timerEnabled, 
 
   // ── Join Room ─────────────────────────────────────────────────────────────
   async function handleJoin() {
-    const code = joinCode.trim();
-    if (code.length !== 4 || isNaN(Number(code))) {
-      setErrMsg("Enter a valid 4-digit room code.");
+    const code = joinCode.trim().toUpperCase();
+    if (code.length !== 6 || !/^[A-Z0-9]{6}$/.test(code)) {
+      setErrMsg("Enter a valid 6-character room code.");
       return;
     }
     setLoading(true);
@@ -290,11 +297,10 @@ export default function LobbyScreen({ onEnterGame, onBack, sound, timerEnabled, 
           <label style={labelStyle}>ROOM CODE</label>
           <input
             type="text"
-            inputMode="numeric"
-            maxLength={4}
-            placeholder="e.g. 4729"
+            maxLength={6}
+            placeholder="e.g. AB3X7K"
             value={joinCode}
-            onChange={(e) => setJoinCode(e.target.value.replace(/\D/g, ""))}
+            onChange={(e) => setJoinCode(e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase())}
             style={{
               width: "100%", padding: "12px", borderRadius: "12px",
               border: "2px solid rgba(255,255,255,0.12)", background: "rgba(0,0,0,0.35)",

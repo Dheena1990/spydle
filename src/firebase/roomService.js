@@ -9,9 +9,11 @@ import {
   remove,
 } from "firebase/database";
 
-// ── Generate a random 4-digit room code ───────────────────────────────────
+// ── Generate a random 6-character alphanumeric room code ──────────────────
 export function generateRoomCode() {
-  return String(Math.floor(1000 + Math.random() * 9000));
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I to avoid confusion
+  const values = crypto.getRandomValues(new Uint8Array(6));
+  return Array.from(values, (v) => chars[v % chars.length]).join("");
 }
 
 // ── Check if a room exists ─────────────────────────────────────────────────

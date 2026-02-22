@@ -12,16 +12,34 @@ export function useGame() {
     let pack = wordPack;
 
     if (wordPack === "custom") {
-      const words = customWords
+      const allowedPattern = /^[A-Za-z0-9 '\-]+$/;
+      const raw = customWords
         .split(/[,\n]+/)
-        .map((w) => w.trim().toUpperCase())
+        .map((w) => w.trim())
         .filter((w) => w.length > 0);
 
-      if (words.length < 25) {
-        alert("Need at least 25 words for custom pack!");
+      if (raw.length > 200) {
+        alert("Too many words! Maximum is 200.");
         return false;
       }
-      WORD_PACKS.custom = { name: "Custom", icon: "✏️", words };
+
+      const invalid = raw.filter((w) => !allowedPattern.test(w) || w.length > 30);
+      if (invalid.length > 0) {
+        alert(`Invalid words (only letters, numbers, spaces, hyphens, apostrophes; max 30 chars):\n${invalid.slice(0, 5).join(", ")}${invalid.length > 5 ? "..." : ""}`);
+        return false;
+      }
+
+      const words = raw.map((w) => w.toUpperCase());
+      const unique = [...new Set(words)];
+      if (unique.length < words.length) {
+        alert(`Removed ${words.length - unique.length} duplicate word(s).`);
+      }
+
+      if (unique.length < 25) {
+        alert("Need at least 25 unique words for custom pack!");
+        return false;
+      }
+      WORD_PACKS.custom = { name: "Custom", icon: "✏️", words: unique };
       pack = "custom";
     }
 
