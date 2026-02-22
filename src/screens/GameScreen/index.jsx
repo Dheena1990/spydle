@@ -8,12 +8,24 @@ import GameLog          from "../../components/GameLog";
 import GameOverBanner   from "../../components/GameOverBanner";
 import Confetti         from "../../components/Confetti";
 
+// ── Role helpers ─────────────────────────────────────────────────────────────
+function roleBadge(role) {
+  if (role === "red_spymaster")  return { label: "🔴 Red Spymaster",  color: "#f87171" };
+  if (role === "blue_spymaster") return { label: "🔵 Blue Spymaster", color: "#60a5fa" };
+  if (role === "operative")      return { label: "📺 Operative",       color: "#a78bfa" };
+  return null;
+}
+
 export default function GameScreen({
   game,
   currentClue,
   guessesLeft,
   timerEnabled,
   timerDuration,
+  role = "local",
+  isMultiplayer = false,
+  mpConnected = false,
+  mpError = null,
   onGiveClue,
   onRevealCard,
   onEndTurn,
@@ -33,7 +45,30 @@ export default function GameScreen({
 
   const { aiLoading, generateClue } = useAiSpymaster();
 
-  // ── Start timer on clue ──────────────────────────────────────────
+  // ── Role logic ────────────────────────────────────────────────────────────
+  // Spymasters can always toggle the spymaster view; operatives cannot.
+  const canToggleSpymaster = role !== "operative";
+
+  // Can give a clue this turn?
+  const myTeam =
+    role === "red_spymaster"  ? "red"  :
+    role === "blue_spymaster" ? "blue" :
+    role === "local"          ? game?.currentTeam :  // local: always allowed
+    null; // operative: never
+
+  const isMyTurnToClue =
+    !isMultiplayer ||                          // local play: always shown
+    (myTeam && game?.currentTeam === myTeam);  // multiplayer: only your team's turn
+
+  // Effective spymaster view: local toggle OR forced on for spymaster roles
+  const showSpymasterColors =
+    isSpymaster ||
+    role === "red_spymaster" ||
+    role === "blue_spymaster";
+
+  const badge = roleBadge(role);
+
+  // ── Timer helpers ─────────────────────────────────────────────────────────
   function startTimer() {
     if (timerEnabled) {
       setTimerActive(true);
@@ -45,7 +80,7 @@ export default function GameScreen({
     setTimerActive(false);
   }
 
-  // ── Manual clue submission ───────────────────────────────────────
+  // ── Manual clue submission ────────────────────────────────────────────────
   const handleGiveClue = useCallback(() => {
     const ok = onGiveClue(clueWord, clueNumber);
     if (ok) {
@@ -56,13 +91,13 @@ export default function GameScreen({
     }
   }, [clueWord, clueNumber, onGiveClue, sound, timerEnabled]);
 
-  // ── Card click ───────────────────────────────────────────────────
+  // ── Card click ────────────────────────────────────────────────────────────
   const handleCardClick = useCallback(
-    (cardId) => {
+    async (cardId) => {
       setRevealAnimation(cardId);
       setTimeout(() => setRevealAnimation(null), 600);
 
-      const result = onRevealCard(cardId);
+      const result = await onRevealCard(cardId);
       if (!result) return;
 
       if (result.endType === "assassin") {
@@ -81,19 +116,19 @@ export default function GameScreen({
     [onRevealCard, sound]
   );
 
-  // ── End turn ─────────────────────────────────────────────────────
-  const handleEndTurn = useCallback(() => {
+  // ── End turn ──────────────────────────────────────────────────────────────
+  const handleEndTurn = useCallback(async () => {
     sound("click");
     stopTimer();
-    onEndTurn();
+    await onEndTurn();
   }, [onEndTurn, sound]);
 
-  // ── Timer expired ────────────────────────────────────────────────
+  // ── Timer expired ─────────────────────────────────────────────────────────
   const handleTimerUp = useCallback(() => {
     if (game && !game.gameOver) handleEndTurn();
   }, [game, handleEndTurn]);
 
-  // ── AI clue ──────────────────────────────────────────────────────
+  // ── AI clue ───────────────────────────────────────────────────────────────
   const handleAiClue = useCallback(() => {
     generateClue(
       game,
@@ -106,7 +141,20 @@ export default function GameScreen({
     );
   }, [game, generateClue, onApplyAiClue, onLogError, sound, timerEnabled]);
 
-  if (!game) return null;
+  if (!game) {
+    // Waiting for Firebase room data
+    if (isMultiplayer && !mpConnected) {
+      return (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", flexDirection: "column", gap: "16px" }}>
+          <div style={{ fontSize: "32px" }}>⏳</div>
+          <div style={{ color: "#94a3b8", fontSize: "16px" }}>
+            {mpError || "Connecting to room…"}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  }
 
   return (
     <div style={{ position: "relative", zIndex: 1, maxWidth: "780px", margin: "0 auto", padding: "12px 8px 100px" }}>
@@ -126,18 +174,41 @@ export default function GameScreen({
           ← Menu
         </button>
 
-        <h1
-          style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: "22px", fontWeight: 800,
-            background: "linear-gradient(135deg, #ef4444, #3b82f6)",
-            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-          }}
-        >
-          SPYDLE
-        </h1>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+          <h1
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "22px", fontWeight: 800,
+              background: "linear-gradient(135deg, #ef4444, #3b82f6)",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+              margin: 0,
+            }}
+          >
+            SPYDLE
+          </h1>
+          {/* Role badge for multiplayer */}
+          {badge && (
+            <span style={{
+              fontSize: "11px", fontWeight: 700, letterSpacing: "1px",
+              color: badge.color, background: "rgba(255,255,255,0.06)",
+              padding: "2px 8px", borderRadius: "6px",
+              border: `1px solid ${badge.color}40`,
+            }}>
+              {badge.label}
+            </span>
+          )}
+        </div>
 
-        <div style={{ display: "flex", gap: "6px" }}>
+        <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+          {/* Connection indicator (multiplayer only) */}
+          {isMultiplayer && (
+            <div style={{
+              width: "8px", height: "8px", borderRadius: "50%",
+              background: mpConnected ? "#22c55e" : "#ef4444",
+              boxShadow: mpConnected ? "0 0 6px #22c55e" : "0 0 6px #ef4444",
+              title: mpConnected ? "Connected" : "Disconnected",
+            }} />
+          )}
           <button
             onClick={() => { setShowLog(!showLog); sound("click"); }}
             style={{
@@ -179,23 +250,28 @@ export default function GameScreen({
 
       {/* Spymaster toggle + AI + End Turn row */}
       <div style={{ display: "flex", gap: "8px", marginBottom: "12px", flexWrap: "wrap" }}>
-        <button
-          onClick={() => { setIsSpymaster(!isSpymaster); sound("click"); }}
-          style={{
-            flex: 1, minWidth: "120px", padding: "10px", borderRadius: "12px",
-            border: isSpymaster ? "2px solid #f59e0b" : "2px solid rgba(255,255,255,0.08)",
-            background: isSpymaster
-              ? "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(217,119,6,0.1))"
-              : "rgba(255,255,255,0.03)",
-            color: isSpymaster ? "#fbbf24" : "#64748b",
-            cursor: "pointer", fontSize: "14px", fontWeight: 700, fontFamily: "inherit",
-            transition: "all 0.2s",
-          }}
-        >
-          {isSpymaster ? "🗝️ SPYMASTER ON" : "🕵️‍♂️ Spymaster View"}
-        </button>
 
-        {!currentClue && !game.gameOver && (
+        {/* Spymaster toggle — hidden for operative role */}
+        {canToggleSpymaster && (
+          <button
+            onClick={() => { setIsSpymaster(!isSpymaster); sound("click"); }}
+            style={{
+              flex: 1, minWidth: "120px", padding: "10px", borderRadius: "12px",
+              border: showSpymasterColors ? "2px solid #f59e0b" : "2px solid rgba(255,255,255,0.08)",
+              background: showSpymasterColors
+                ? "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(217,119,6,0.1))"
+                : "rgba(255,255,255,0.03)",
+              color: showSpymasterColors ? "#fbbf24" : "#64748b",
+              cursor: "pointer", fontSize: "14px", fontWeight: 700, fontFamily: "inherit",
+              transition: "all 0.2s",
+            }}
+          >
+            {showSpymasterColors ? "🗝️ SPYMASTER ON" : "🕵️‍♂️ Spymaster View"}
+          </button>
+        )}
+
+        {/* AI Spymaster — only on your turn, no active clue */}
+        {!currentClue && !game.gameOver && isMyTurnToClue && (
           <button
             onClick={handleAiClue}
             disabled={aiLoading}
@@ -218,6 +294,7 @@ export default function GameScreen({
           </button>
         )}
 
+        {/* End Turn — only when active clue, not game over */}
         {currentClue && !game.gameOver && (
           <button
             onClick={handleEndTurn}
@@ -245,8 +322,8 @@ export default function GameScreen({
         )}
       </div>
 
-      {/* Manual clue input */}
-      {!currentClue && !game.gameOver && (
+      {/* Manual clue input — only on your turn, no active clue */}
+      {!currentClue && !game.gameOver && isMyTurnToClue && (
         <ClueInput
           currentTeam={game.currentTeam}
           clueWord={clueWord}
@@ -257,10 +334,21 @@ export default function GameScreen({
         />
       )}
 
+      {/* Waiting message for multiplayer when it's not your turn to clue */}
+      {isMultiplayer && !currentClue && !game.gameOver && !isMyTurnToClue && role !== "operative" && (
+        <div style={{
+          textAlign: "center", padding: "12px", borderRadius: "10px",
+          background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+          color: "#64748b", fontSize: "14px", marginBottom: "12px",
+        }}>
+          ⏳ Waiting for {game.currentTeam === "red" ? "🔴 Red" : "🔵 Blue"} Spymaster to give a clue…
+        </div>
+      )}
+
       {/* Board */}
       <Board
         cards={game.cards}
-        isSpymaster={isSpymaster}
+        isSpymaster={showSpymasterColors}
         currentClue={currentClue}
         currentTeam={game.currentTeam}
         gameOver={game.gameOver}
