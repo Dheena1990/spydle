@@ -178,7 +178,7 @@ export default function MenuScreen({
       {/* Start */}
       <div style={{ animation: "slideUp 0.8s ease-out 0.3s both", display: "flex", flexDirection: "column", gap: "10px" }}>
         <button
-          onClick={handleStart}
+          onClick={() => { sound("click"); onMultiplayer(); }}
           style={{
             width: "100%", padding: "20px", borderRadius: "16px",
             border: "none", cursor: "pointer",
@@ -191,11 +191,11 @@ export default function MenuScreen({
           onMouseEnter={(e) => (e.target.style.transform = "translateY(-2px)")}
           onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
         >
-          Start Mission 🚀
+          🌐 Multiplayer 🚀
         </button>
 
         <button
-          onClick={() => { sound("click"); onMultiplayer(); }}
+          onClick={handleStart}
           style={{
             width: "100%", padding: "16px", borderRadius: "14px",
             border: "2px solid rgba(167,139,250,0.35)", cursor: "pointer",
@@ -207,7 +207,7 @@ export default function MenuScreen({
           onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(167,139,250,0.15)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(167,139,250,0.08)"; e.currentTarget.style.transform = "translateY(0)"; }}
         >
-          🌐 Multiplayer — Play with Friends
+          Classic — Solo Device
         </button>
       </div>
 
