@@ -35,13 +35,14 @@ export default function MenuScreen({
       style={{
         position: "relative", zIndex: 1,
         maxWidth: "680px", margin: "0 auto",
-        padding: "40px 20px", minHeight: "100vh",
+        padding: "16px 16px", height: "100dvh",
         display: "flex", flexDirection: "column", justifyContent: "center",
+        overflow: "hidden",
       }}
     >
       {/* Logo */}
-      <div style={{ textAlign: "center", marginBottom: "48px", animation: "slideUp 0.8s ease-out" }}>
-        <div style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "6px", textTransform: "uppercase", color: "#a78bfa", marginBottom: "12px" }}>
+      <div style={{ textAlign: "center", marginBottom: "20px", animation: "slideUp 0.8s ease-out" }}>
+        <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "6px", textTransform: "uppercase", color: "#a78bfa", marginBottom: "6px" }}>
           🕵️ SPY WORD GAME 🕵️
         </div>
         <h1
@@ -62,17 +63,17 @@ export default function MenuScreen({
         >
           SPYDLE
         </h1>
-        <p style={{ fontSize: "16px", color: "#94a3b8", marginTop: "12px", fontWeight: 300, letterSpacing: "1px" }}>
+        <p style={{ fontSize: "14px", color: "#94a3b8", marginTop: "6px", fontWeight: 300, letterSpacing: "1px" }}>
           The spy word guessing game — powered by AI 🕵️
         </p>
       </div>
 
       {/* Word Pack Selection */}
       <div style={{ animation: "slideUp 0.8s ease-out 0.1s both" }}>
-        <label style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase", color: "#64748b", display: "block", marginBottom: "12px" }}>
+        <label style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase", color: "#64748b", display: "block", marginBottom: "8px" }}>
           WORD PACK
         </label>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px", marginBottom: "24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "8px", marginBottom: "12px" }}>
           {Object.entries(WORD_PACKS)
             .filter(([k]) => k !== "custom")
             .map(([key, pack]) => (
@@ -80,7 +81,7 @@ export default function MenuScreen({
                 key={key}
                 onClick={() => { setWordPack(key); setShowCustom(false); sound("click"); }}
                 style={{
-                  padding: "16px", borderRadius: "14px",
+                  padding: "10px", borderRadius: "12px",
                   border: wordPack === key && !showCustom ? "2px solid #a78bfa" : "2px solid rgba(255,255,255,0.08)",
                   background: wordPack === key && !showCustom ? "rgba(167,139,250,0.12)" : "rgba(255,255,255,0.03)",
                   color: wordPack === key && !showCustom ? "#c4b5fd" : "#94a3b8",
@@ -103,7 +104,7 @@ export default function MenuScreen({
             border: showCustom ? "2px solid #a78bfa" : "2px dashed rgba(255,255,255,0.15)",
             background: showCustom ? "rgba(167,139,250,0.1)" : "transparent",
             color: "#94a3b8", cursor: "pointer", fontSize: "14px", fontWeight: 500,
-            fontFamily: "inherit", marginBottom: showCustom ? "12px" : "24px",
+            fontFamily: "inherit", marginBottom: showCustom ? "8px" : "12px",
             transition: "all 0.2s",
           }}
         >
@@ -119,26 +120,26 @@ export default function MenuScreen({
               width: "100%", height: "100px", padding: "14px", borderRadius: "12px",
               border: "2px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.3)",
               color: "#e2e8f0", fontSize: "14px", fontFamily: "'JetBrains Mono', monospace",
-              resize: "vertical", marginBottom: "24px",
+              resize: "vertical", marginBottom: "12px",
             }}
           />
         )}
       </div>
 
       {/* Settings */}
-      <div style={{ animation: "slideUp 0.8s ease-out 0.2s both", marginBottom: "24px" }}>
-        <label style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase", color: "#64748b", display: "block", marginBottom: "12px" }}>
+      <div style={{ animation: "slideUp 0.8s ease-out 0.2s both", marginBottom: "12px" }}>
+        <label style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase", color: "#64748b", display: "block", marginBottom: "8px" }}>
           SETTINGS
         </label>
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           <button
             onClick={() => { setTimerEnabled(!timerEnabled); sound("click"); }}
             style={{
-              flex: 1, minWidth: "140px", padding: "14px", borderRadius: "12px",
+              flex: 1, minWidth: "120px", padding: "10px", borderRadius: "12px",
               border: timerEnabled ? "2px solid #60a5fa" : "2px solid rgba(255,255,255,0.08)",
               background: timerEnabled ? "rgba(96,165,250,0.1)" : "rgba(255,255,255,0.03)",
               color: timerEnabled ? "#93c5fd" : "#64748b",
-              cursor: "pointer", fontSize: "14px", fontWeight: 600, fontFamily: "inherit",
+              cursor: "pointer", fontSize: "13px", fontWeight: 600, fontFamily: "inherit",
               transition: "all 0.2s",
             }}
           >
@@ -150,9 +151,9 @@ export default function MenuScreen({
               value={timerDuration}
               onChange={(e) => setTimerDuration(Number(e.target.value))}
               style={{
-                flex: 1, minWidth: "140px", padding: "14px", borderRadius: "12px",
+                flex: 1, minWidth: "120px", padding: "10px", borderRadius: "12px",
                 border: "2px solid rgba(255,255,255,0.08)", background: "rgba(0,0,0,0.4)",
-                color: "#e2e8f0", fontSize: "14px", fontFamily: "inherit", cursor: "pointer",
+                color: "#e2e8f0", fontSize: "13px", fontFamily: "inherit", cursor: "pointer",
               }}
             >
               <option value={60}>1 min</option>
@@ -166,11 +167,11 @@ export default function MenuScreen({
           <button
             onClick={() => { setSoundEnabled(!soundEnabled); sound("click"); }}
             style={{
-              flex: 1, minWidth: "140px", padding: "14px", borderRadius: "12px",
+              flex: 1, minWidth: "120px", padding: "10px", borderRadius: "12px",
               border: soundEnabled ? "2px solid #34d399" : "2px solid rgba(255,255,255,0.08)",
               background: soundEnabled ? "rgba(52,211,153,0.1)" : "rgba(255,255,255,0.03)",
               color: soundEnabled ? "#6ee7b7" : "#64748b",
-              cursor: "pointer", fontSize: "14px", fontWeight: 600, fontFamily: "inherit",
+              cursor: "pointer", fontSize: "13px", fontWeight: 600, fontFamily: "inherit",
               transition: "all 0.2s",
             }}
           >
@@ -184,10 +185,10 @@ export default function MenuScreen({
         <button
           onClick={() => { sound("click"); onMultiplayer(); }}
           style={{
-            width: "100%", padding: "20px", borderRadius: "16px",
+            width: "100%", padding: "14px", borderRadius: "14px",
             border: "none", cursor: "pointer",
             background: "linear-gradient(135deg, #ef4444, #8b5cf6, #3b82f6)",
-            color: "white", fontSize: "20px", fontWeight: 800,
+            color: "white", fontSize: "18px", fontWeight: 800,
             fontFamily: "inherit", letterSpacing: "2px", textTransform: "uppercase",
             boxShadow: "0 8px 32px rgba(139,92,246,0.3)",
             transition: "all 0.2s",
@@ -202,7 +203,7 @@ export default function MenuScreen({
       <button
         onClick={onRules}
         style={{
-          margin: "20px auto 0", display: "block",
+          margin: "12px auto 0", display: "block",
           background: "none", border: "none", color: "#64748b",
           cursor: "pointer", fontSize: "14px", fontFamily: "inherit",
           textDecoration: "underline", textDecorationStyle: "dotted",
