@@ -6,7 +6,8 @@ const RULES = [
   { emoji: "💀", title: "The Assassin",  desc: "Hit the Assassin card? Your team INSTANTLY LOSES. Spymasters must be careful!" },
   { emoji: "🏆", title: "Winning",       desc: "First team to uncover ALL their agents wins! The starting team has 9 words, the other has 8." },
   { emoji: "🤖", title: "AI Spymaster",  desc: "Don't have enough players? Let AI be your Spymaster! It'll analyze the board and give clever clues." },
-  { emoji: "🗝️", title: "Spymaster View",desc: "Toggle Spymaster mode to see the key card (all card colors revealed). Share one screen or use separate devices!" },
+  { emoji: "🌐", title: "Multiplayer",   desc: "Create a room and share the code with friends. Each player joins as Red Spymaster, Blue Spymaster, or Operative on their own device." },
+  { emoji: "🗝️", title: "Spymaster View",desc: "Spymasters automatically see the key card with all card colors revealed. Operatives only see unrevealed cards." },
 ];
 
 export default function RulesScreen({ onBack }) {
