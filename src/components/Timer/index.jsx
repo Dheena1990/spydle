@@ -35,23 +35,23 @@ export default function Timer({ isActive, onTimeUp, duration = 120 }) {
   return (
     <div
       style={{
-        display: "flex", alignItems: "center", gap: "10px",
-        padding: "8px 16px", borderRadius: "12px",
+        display: "flex", alignItems: "center", gap: "6px",
+        padding: "4px 10px", borderRadius: "10px",
         background: isLow ? "rgba(239,68,68,0.15)" : "rgba(255,255,255,0.08)",
         border: isLow ? "1px solid rgba(239,68,68,0.4)" : "1px solid rgba(255,255,255,0.1)",
         transition: "all 0.3s",
       }}
     >
-      <div style={{ position: "relative", width: 32, height: 32 }}>
-        <svg width="32" height="32" viewBox="0 0 32 32">
-          <circle cx="16" cy="16" r="14" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3" />
+      <div style={{ position: "relative", width: 24, height: 24 }}>
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
           <circle
-            cx="16" cy="16" r="14" fill="none"
+            cx="12" cy="12" r="10" fill="none"
             stroke={isLow ? "#ef4444" : "#60a5fa"}
-            strokeWidth="3" strokeLinecap="round"
-            strokeDasharray={`${2 * Math.PI * 14}`}
-            strokeDashoffset={`${2 * Math.PI * 14 * (1 - pct / 100)}`}
-            transform="rotate(-90 16 16)"
+            strokeWidth="2.5" strokeLinecap="round"
+            strokeDasharray={`${2 * Math.PI * 10}`}
+            strokeDashoffset={`${2 * Math.PI * 10 * (1 - pct / 100)}`}
+            transform="rotate(-90 12 12)"
             style={{ transition: "stroke-dashoffset 1s linear" }}
           />
         </svg>
@@ -59,7 +59,7 @@ export default function Timer({ isActive, onTimeUp, duration = 120 }) {
       <span
         style={{
           fontFamily: "'JetBrains Mono', monospace",
-          fontSize: "18px", fontWeight: 700,
+          fontSize: "14px", fontWeight: 700,
           color: isLow ? "#ef4444" : "#e2e8f0",
           animation: isLow ? "pulse 1s infinite" : "none",
           minWidth: "50px",
