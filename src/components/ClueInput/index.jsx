@@ -6,8 +6,8 @@ export default function ClueInput({ currentTeam, clueWord, clueNumber, onClueWor
   return (
     <div
       style={{
-        display: "flex", gap: "8px", marginBottom: "12px",
-        padding: "12px", borderRadius: "14px",
+        display: "flex", gap: "8px", marginBottom: "6px",
+        padding: "10px", borderRadius: "14px",
         background: "rgba(255,255,255,0.03)",
         border: "1px solid rgba(255,255,255,0.06)",
         animation: "slideUp 0.3s ease-out",

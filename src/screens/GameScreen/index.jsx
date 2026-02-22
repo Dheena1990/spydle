@@ -171,12 +171,12 @@ export default function GameScreen({
   }
 
   return (
-    <div style={{ position: "relative", zIndex: 1, maxWidth: "780px", margin: "0 auto", padding: "12px 8px 100px" }}>
+    <div style={{ position: "relative", zIndex: 1, maxWidth: "780px", margin: "0 auto", padding: "8px 8px 8px", minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
 
       {game.gameOver && game.winner && <Confetti color={game.winner} />}
 
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", flexWrap: "wrap", gap: "8px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px", flexWrap: "wrap", gap: "6px" }}>
         <button
           onClick={onMenu}
           style={{
@@ -289,7 +289,7 @@ export default function GameScreen({
       />
 
       {/* Spymaster toggle + AI + End Turn row */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "12px", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: "8px", marginBottom: "6px", flexWrap: "wrap" }}>
 
         {/* Spymaster toggle — hidden for operative role */}
         {canToggleSpymaster && (
@@ -377,24 +377,26 @@ export default function GameScreen({
       {/* Waiting message for multiplayer when it's not your turn to clue */}
       {isMultiplayer && !currentClue && !game.gameOver && !isMyTurnToClue && role !== "operative" && (
         <div style={{
-          textAlign: "center", padding: "12px", borderRadius: "10px",
+          textAlign: "center", padding: "8px", borderRadius: "10px",
           background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-          color: "#64748b", fontSize: "14px", marginBottom: "12px",
+          color: "#64748b", fontSize: "14px", marginBottom: "6px",
         }}>
           ⏳ Waiting for {game.currentTeam === "red" ? "🔴 Red" : "🔵 Blue"} Spymaster to give a clue…
         </div>
       )}
 
       {/* Board */}
-      <Board
-        cards={game.cards}
-        isSpymaster={showSpymasterColors}
-        currentClue={currentClue}
-        currentTeam={game.currentTeam}
-        gameOver={game.gameOver}
-        revealAnimation={revealAnimation}
-        onCardClick={handleCardClick}
-      />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0 }}>
+        <Board
+          cards={game.cards}
+          isSpymaster={showSpymasterColors}
+          currentClue={currentClue}
+          currentTeam={game.currentTeam}
+          gameOver={game.gameOver}
+          revealAnimation={revealAnimation}
+          onCardClick={handleCardClick}
+        />
+      </div>
 
       {/* Game over */}
       <GameOverBanner game={game} onPlayAgain={() => { onPlayAgain(); stopTimer(); }} />

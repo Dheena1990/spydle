@@ -17,8 +17,8 @@ export default function ClueDisplay({
   return (
     <div
       style={{
-        marginBottom: "14px",
-        padding: "14px 20px",
+        marginBottom: "6px",
+        padding: "10px 16px",
         borderRadius: "16px",
         background: teamBg(currentClue.team),
         border: `2px solid ${teamBorder(currentClue.team)}`,

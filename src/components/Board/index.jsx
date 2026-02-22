@@ -14,8 +14,8 @@ export default function Board({
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(5, 1fr)",
-        gap: "clamp(4px, 1.2vw, 8px)",
-        marginBottom: "16px",
+        gap: "clamp(3px, 0.8vw, 8px)",
+        marginBottom: "0",
       }}
     >
       {cards.map((card) => {

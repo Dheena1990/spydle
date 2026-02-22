@@ -3,12 +3,12 @@ export const teamBg    = (t) => (t === "red" ? "rgba(239,68,68,0.12)" : "rgba(59
 export const teamBorder= (t) => (t === "red" ? "rgba(239,68,68,0.3)"  : "rgba(59,130,246,0.3)");
 
 export const appBackground = {
-  minHeight: "100vh",
+  minHeight: "100dvh",
   background: "linear-gradient(135deg, #0f0f23 0%, #1a1a3e 30%, #0d1b2a 60%, #1b0f1f 100%)",
   color: "#e2e8f0",
   fontFamily: "'Outfit', 'Segoe UI', sans-serif",
   position: "relative",
-  overflow: "hidden",
+  overflowX: "hidden",
 };
 
 export const bgDecor = {
