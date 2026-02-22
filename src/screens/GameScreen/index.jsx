@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useAiSpymaster } from "../../hooks/useAiSpymaster";
 import Board            from "../../components/Board";
 import ScoreBar         from "../../components/ScoreBar";
@@ -82,16 +82,28 @@ export default function GameScreen({
     setTimerActive(false);
   }
 
+  // ── Sync timer for all players when a new clue arrives (multiplayer) ─────
+  const prevClueRef = useRef(null);
+  useEffect(() => {
+    if (isMultiplayer && currentClue && currentClue !== prevClueRef.current) {
+      startTimer();
+    }
+    if (!currentClue) {
+      stopTimer();
+    }
+    prevClueRef.current = currentClue;
+  }, [currentClue]);
+
   // ── Manual clue submission ────────────────────────────────────────────────
   const handleGiveClue = useCallback(() => {
     const ok = onGiveClue(clueWord, clueNumber);
     if (ok) {
       setClueWord("");
       setClueNumber("");
-      startTimer();
+      if (!isMultiplayer) startTimer(); // multiplayer timer syncs via useEffect
       sound("click");
     }
-  }, [clueWord, clueNumber, onGiveClue, sound, timerEnabled]);
+  }, [clueWord, clueNumber, onGiveClue, sound, timerEnabled, isMultiplayer]);
 
   // ── Card click ────────────────────────────────────────────────────────────
   const handleCardClick = useCallback(
@@ -136,7 +148,7 @@ export default function GameScreen({
       game,
       (clue) => {
         onApplyAiClue(clue);
-        startTimer();
+        if (!isMultiplayer) startTimer(); // multiplayer timer syncs via useEffect
         sound("click");
       },
       (err) => onLogError(err)
