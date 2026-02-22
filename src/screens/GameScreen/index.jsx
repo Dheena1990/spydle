@@ -231,6 +231,7 @@ export default function GameScreen({
               title: mpConnected ? "Connected" : "Disconnected",
             }} />
           )}
+          {role !== "operative" && (
           <button
             onClick={() => { setShowLog(!showLog); sound("click"); }}
             style={{
@@ -243,6 +244,7 @@ export default function GameScreen({
           >
             📋
           </button>
+          )}
           <button
             onClick={() => { onPlayAgain(); stopTimer(); }}
             style={{
@@ -381,8 +383,8 @@ export default function GameScreen({
       {/* Game over */}
       <GameOverBanner game={game} onPlayAgain={() => { onPlayAgain(); stopTimer(); }} />
 
-      {/* Log */}
-      {showLog && <GameLog log={game.log} />}
+      {/* Log (hidden from operatives) */}
+      {showLog && role !== "operative" && <GameLog log={game.log} />}
     </div>
   );
 }
