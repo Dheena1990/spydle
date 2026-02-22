@@ -49,11 +49,15 @@ export default function MenuScreen({
             fontFamily: "'Playfair Display', serif",
             fontSize: "clamp(48px, 10vw, 72px)",
             fontWeight: 900,
-            background: "linear-gradient(135deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6)",
+            background: "linear-gradient(270deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6, #ef4444)",
+            backgroundSize: "200% 200%",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             lineHeight: 1.1,
-            animation: "glow 3s ease-in-out infinite",
+            letterSpacing: "6px",
+            animation: "gradientShift 4s ease infinite, glow 3s ease-in-out infinite",
+            textShadow: "0 4px 30px rgba(139,92,246,0.3)",
+            filter: "drop-shadow(0 0 20px rgba(139,92,246,0.25))",
           }}
         >
           SPYDLE

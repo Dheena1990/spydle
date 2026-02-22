@@ -193,9 +193,13 @@ export default function GameScreen({
             style={{
               fontFamily: "'Playfair Display', serif",
               fontSize: "22px", fontWeight: 800,
-              background: "linear-gradient(135deg, #ef4444, #3b82f6)",
+              background: "linear-gradient(270deg, #ef4444, #f97316, #eab308, #3b82f6, #8b5cf6, #ef4444)",
+              backgroundSize: "200% 200%",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
               margin: 0,
+              letterSpacing: "3px",
+              animation: "gradientShift 4s ease infinite",
+              filter: "drop-shadow(0 0 8px rgba(139,92,246,0.2))",
             }}
           >
             SPYDLE
